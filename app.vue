@@ -1,5 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <NuxtLayout>
     <NuxtPage />
-  </div>
+  </NuxtLayout>
+  <ThemeInitializer />
 </template>
+
+<script setup>
+
+</script>
