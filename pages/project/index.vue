@@ -13,7 +13,6 @@
 </template>
 
 <script setup>
-
 import Filter from '@/components/project/Filter.vue';
 import EmptyData from '@/components/ui/EmptyData.vue';
 import CardProject from '@/components/ui/card/Project.vue';
@@ -22,18 +21,20 @@ import { useProjectStore } from '@/stores'
 const projectStore = useProjectStore();
 const searchTask = ref('')
 
-const projects = ref(projectStore.getProject);
+const projects = computed(() => projectStore.getProject);
 
-const deleteProject = (id) => {
-  console.log('Delete project:', id)
-  projectStore.delete(id)
+const deleteProject = async (id) => {
+  try {
+    await projectStore.delete(id)
+  } catch (error) {
+    console.error('Failed to delete project:', error)
+  }
 }
 
 const funSearch = (value) => {
   searchTask.value = value
   console.log('Search task:', searchTask.value)
 }
-
 </script>
 
 <style scoped></style>

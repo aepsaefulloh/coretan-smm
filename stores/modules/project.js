@@ -152,18 +152,27 @@ export const useProjectStore = defineStore('project', {
                 this.isLoadingDraft = false
             }
         },
-        async delete() {
+        async delete(id) {
             const { $toast } = useNuxtApp()
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000))
-                $toast.success('Project berhasil dihapus')
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500))
+                
+                // Remove project from state
+                const index = this.projects.findIndex(project => project.id === id)
+                if (index !== -1) {
+                    const deletedProject = this.projects[index]
+                    this.projects.splice(index, 1)
+                    $toast.success(`Project "${deletedProject.name}" deleted successfully`)
+                } else {
+                    throw new Error('Project not found')
+                }
             } catch (error) {
                 console.error('Error deleting project:', error)
-                $toast.error('Gagal menghapus project')
+                $toast.error('Failed to delete project')
+                throw error
             }
         }
-
-
     },
     getters: {
         getProject: (state) => state.projects,

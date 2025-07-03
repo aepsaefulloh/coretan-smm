@@ -30,8 +30,8 @@
                         class="block flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         <img src="/images/icon/edit.svg" class="mr-2" alt=""> Edit
                     </NuxtLink>
-                    <button @click="deleteProject"
-                        class="w-full flex items-center text-left px-4 py-2 text-sm hover:bg-red-100">
+                    <button @click="handleDeleteClick"
+                        class="w-full flex items-center text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                         <img src="/images/icon/delete.svg" class="mr-2" alt="">
                         Delete
                     </button>
@@ -104,15 +104,35 @@
             </div>
         </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal 
+        :is-open="confirmation.isOpen.value"
+        :type="confirmation.config.value.type"
+        :title="confirmation.config.value.title"
+        :message="confirmation.config.value.message"
+        :confirm-text="confirmation.config.value.confirmText"
+        :cancel-text="confirmation.config.value.cancelText"
+        :loading-text="confirmation.config.value.loadingText"
+        :loading="confirmation.loading.value"
+        :close-on-backdrop="confirmation.config.value.closeOnBackdrop"
+        @confirm="confirmation.confirm"
+        @cancel="confirmation.cancel"
+        @close="confirmation.close"
+    />
 </template>
 
 <script setup>
 import { statusColors } from "@/utils"
+import ConfirmationModal from '@/components/ui/modal/Confirmation.vue'
 
 const props = defineProps(['project'])
 const emit = defineEmits(['delete'])
 const showDropdown = ref(false)
 const dropdownRef = ref(null)
+
+// Use confirmation composable
+const confirmation = useConfirmation()
 
 const toggleDropdown = () => {
     showDropdown.value = !showDropdown.value
@@ -124,9 +144,18 @@ const handleClickOutside = (event) => {
     }
 }
 
-const deleteProject = () => {
-    emit('delete', props.project.id)
+const handleDeleteClick = async () => {
     showDropdown.value = false
+    
+    try {
+        await confirmation.showDeleteConfirmation(`project "${props.project.name}"`)
+        
+        // If confirmed, emit delete event
+        emit('delete', props.project.id)
+    } catch (error) {
+        // User cancelled or error occurred
+        console.log('Delete cancelled')
+    }
 }
 
 onMounted(() => {
@@ -137,6 +166,5 @@ onBeforeUnmount(() => {
     document.removeEventListener('click', handleClickOutside)
 })
 </script>
-
 
 <style lang="scss" scoped></style>
